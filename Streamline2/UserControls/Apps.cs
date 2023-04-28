@@ -43,71 +43,48 @@ namespace Streamline2.UserControls
 
         public void Apps_Loader(object sender, EventArgs e)
         {
-            int innerButtonCounter = Properties.Settings.Default.outer_counter;
-            int outerPictureBoxCounter = Properties.Settings.Default.inner_counter;
-
             // Load button data from JSON file
-            string path = Path.Combine(Environment.CurrentDirectory, "..", "..", "App_Data\\ButtonData.json");
-            string jsonData = File.Exists(path) ? File.ReadAllText(path) : null;
+            var path = Path.Combine(Environment.CurrentDirectory, "..", "..", "App_Data", "ButtonData.json");
+            var jsonData = File.Exists(path) ? File.ReadAllText(path) : null;
             var buttonDataList = JsonConvert.DeserializeObject<List<dynamic>>(jsonData) ?? new List<dynamic>();
 
             // Loop through button data and create corresponding buttons
             foreach (var buttonData in buttonDataList)
             {
                 // Create the outer PictureBox
-                var outerPictureBox = new PictureBox();
-
-                outerPictureBox.Name = buttonData.outerPictureBox.name;
-                outerPictureBox.Location = new Point(100, 100);
-                outerPictureBox.Width = 100;
-                outerPictureBox.Height = 100;
-                //outerPictureBox.BackColor = Color.FromArgb(220, 220, 221);
-
-                string imagerawPath = buttonData.outerPictureBox.Image.ToString();
-                imagerawPath = imagerawPath.Replace("\\", "\\\\");
-
-                if (File.Exists(imagerawPath))
+                var outerPictureBox = new PictureBox
                 {
-                    System.Drawing.Image originalImage = System.Drawing.Image.FromFile(imagerawPath);
-                    int newWidth = 100;
-                    int newHeight = 100;
-                    System.Drawing.Image thumbnailImage = originalImage.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
-                    outerPictureBox.Image = thumbnailImage;
-                }
-                else
-                {
-                    System.Drawing.Image originalImage = System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\2.png");
-                    int newWidth = 100;
-                    int newHeight = 100;
-                    System.Drawing.Image thumbnailImage = originalImage.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
-                    outerPictureBox.Image = thumbnailImage;
-                }
+                    Name = buttonData.outerPictureBox.name,
+                    Location = new Point(100, 100),
+                    Width = 100,
+                    Height = 100
+                };
 
-
+                var imageRawPath = buttonData.outerPictureBox.Image.ToString().Replace("\\", "\\\\");
+                outerPictureBox.Image = File.Exists(imageRawPath)
+                    ? System.Drawing.Image.FromFile(imageRawPath).GetThumbnailImage(100, 100, null, IntPtr.Zero)
+                    : System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\2.png")
+                        .GetThumbnailImage(100, 100, null, IntPtr.Zero);
 
                 // Create the inner button
-                var innerButton = new System.Windows.Forms.Button();
-
-                innerButton.Name = buttonData.innerButton.name;
-                innerButton.Width = 30;
-                innerButton.Height = 30;
-                //innerButton.BackColor = Color.FromArgb(197, 195, 198);
-                innerButton.Parent = outerPictureBox; // Set the parent to the outer button
-                innerButton.Location = new Point(63, 4);
-                innerButton.FlatStyle = FlatStyle.Flat;
-                innerButton.FlatAppearance.BorderSize = 0;
-
-                System.Drawing.Image originalImage1 = System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\menustrip.png");
-                int newWidth1 = 40;
-                int newHeight1 = 40;
-                System.Drawing.Image thumbnailImage1 = originalImage1.GetThumbnailImage(newWidth1, newHeight1, null, IntPtr.Zero);
-                innerButton.Image = thumbnailImage1;
+                var innerButton = new System.Windows.Forms.Button
+                {
+                    Name = buttonData.innerButton.name,
+                    Width = 30,
+                    Height = 30,
+                    Parent = outerPictureBox,
+                    Location = new Point(63, 4),
+                    FlatStyle = FlatStyle.Flat,
+                    FlatAppearance = { BorderSize = 0 },
+                    Image = System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\menustrip.png")
+                        .GetThumbnailImage(40, 40, null, IntPtr.Zero)
+                };
 
                 // Add event handlers to buttons
                 outerPictureBox.Click += outerPictureBox_Click;
                 innerButton.Click += innerButton_Click;
 
-                string imagePath = buttonData.imagePath;
+                var imagePath = buttonData.imagePath;
 
                 // If the image path is not null or empty, set the image for the outer PictureBox
                 if (!string.IsNullOrEmpty(imagePath))
@@ -123,11 +100,9 @@ namespace Streamline2.UserControls
                 }
 
                 // Add buttons to the flowLayoutPanel
-                int index = flowLayoutPanel1.Controls.Count - 1; // get second last index
+                var index = flowLayoutPanel1.Controls.Count - 1; // get second last index
                 flowLayoutPanel1.Controls.Add(outerPictureBox); // add control to the end
                 flowLayoutPanel1.Controls.SetChildIndex(outerPictureBox, index); // set control index
-
-
             }
         }
 
@@ -138,53 +113,47 @@ namespace Streamline2.UserControls
         }
 
 
-        int outerPictureBoxCounter = Properties.Settings.Default.outer_counter;
-        int innerButtonCounter = Properties.Settings.Default.outer_counter;
-        string UserInput = "";
+        private int outerPictureBoxCounter = Properties.Settings.Default.outer_counter;
+        private int innerButtonCounter = Properties.Settings.Default.outer_counter;
+        private string userInput = "";
 
-        public void button_generator_Click(object sender, EventArgs e) // This method gets called when the button_generator button is clicked. It generates a new PictureBox with an inner button, and sets up event handlers for them
+        public void button_generator_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.PictureBox outerPictureBox = new System.Windows.Forms.PictureBox(); // Create the outer PictureBox
-            outerPictureBoxCounter++;
-            Properties.Settings.Default.outer_counter = outerPictureBoxCounter;
-            Properties.Settings.Default.Save();
-            outerPictureBox.Name = "outerPictureBox" + outerPictureBoxCounter;
-            outerPictureBox.Location = new Point(100, 100);
-            outerPictureBox.Width = 100;
-            outerPictureBox.Height = 100;
-            //outerPictureBox.BackColor = Color.FromArgb(220, 220, 221);
-            outerPictureBox.Tag = UserInput;
-            //outerPictureBox.Image = System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\logo2.jpg"); // default image for the button (logo)
-            System.Drawing.Image originalImage = System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\2.png");
-            int newWidth = 100;
-            int newHeight = 100;
-            System.Drawing.Image thumbnailImage = originalImage.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
+            // Create the outer PictureBox
+            var outerPictureBox = new PictureBox
+            {
+                Name = $"outerPictureBox{++outerPictureBoxCounter}",
+                Location = new Point(100, 100),
+                Width = 100,
+                Height = 100,
+                Tag = userInput
+            };
+            var originalImage = System.Drawing.Image.FromFile(@"C:\Code Projects\Streamline\Streamline2\Streamline2\2.png");
+            var newWidth = 100;
+            var newHeight = 100;
+            var thumbnailImage = originalImage.GetThumbnailImage(newWidth, newHeight, null, IntPtr.Zero);
             outerPictureBox.Image = thumbnailImage;
             flowLayoutPanel1.Controls.Add(outerPictureBox);
 
             // Create the inner button
-            System.Windows.Forms.Button innerButton = new System.Windows.Forms.Button();
-            innerButtonCounter++;
-            Properties.Settings.Default.inner_counter = innerButtonCounter;
-            Properties.Settings.Default.Save();
-            innerButton.Name = "innerButton" + innerButtonCounter;
-            innerButton.Width = 30;
-            innerButton.Height = 30;
-            //innerButton.BackColor = Color.FromArgb(197, 195, 198);
-            innerButton.Parent = outerPictureBox; // Set the parent to the outer button
-            innerButton.Location = new Point(65, 5);
-            innerButton.FlatStyle = FlatStyle.Flat;
-            innerButton.FlatAppearance.BorderSize = 0;
-
-            System.Drawing.Image originalImage1 = System.Drawing.Image.FromFile("C:\\Code Projects\\Streamline\\Streamline2\\Streamline2\\menustrip.png");
-            int newWidth1 = 40;
-            int newHeight1 = 40;
-            System.Drawing.Image thumbnailImage1 = originalImage1.GetThumbnailImage(newWidth1, newHeight1, null, IntPtr.Zero);
+            var innerButton = new System.Windows.Forms.Button
+            {
+                Name = $"innerButton{++innerButtonCounter}",
+                Width = 30,
+                Height = 30,
+                Parent = outerPictureBox,
+                Location = new Point(65, 5),
+                FlatStyle = FlatStyle.Flat,
+                FlatAppearance = { BorderSize = 0 }
+            };
+            var originalImage1 = System.Drawing.Image.FromFile(@"C:\Code Projects\Streamline\Streamline2\Streamline2\menustrip.png");
+            var newWidth1 = 40;
+            var newHeight1 = 40;
+            var thumbnailImage1 = originalImage1.GetThumbnailImage(newWidth1, newHeight1, null, IntPtr.Zero);
             innerButton.Image = thumbnailImage1;
-
             innerButton.Tag = outerPictureBox.Name;
 
-            int index = flowLayoutPanel1.Controls.IndexOf(outerPictureBox);
+            var index = flowLayoutPanel1.Controls.IndexOf(outerPictureBox);
             if (index > 0)
             {
                 flowLayoutPanel1.Controls.SetChildIndex(outerPictureBox, index - 1);
@@ -193,9 +162,13 @@ namespace Streamline2.UserControls
             outerPictureBox.Click += outerPictureBox_Click;
             innerButton.Click += innerButton_Click;
 
-
             // Save the button configuration to the JSON file
             SaveButtonDataToJson(outerPictureBox, innerButton);
+
+            // Save the counter values to the application settings
+            Properties.Settings.Default.outer_counter = outerPictureBoxCounter;
+            Properties.Settings.Default.inner_counter = innerButtonCounter;
+            Properties.Settings.Default.Save();
         }
         private void SaveButtonDataToJson(System.Windows.Forms.PictureBox outerPictureBox, System.Windows.Forms.Button innerButton)
         {
